@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Font Awesome 7 图标库 · 离线搜索与使用教程</title>
+<!-- 本页需放在 fontawesome-free 包根目录下（与 css/、webfonts/ 平级）使用 -->
+<link rel="stylesheet" href="css/all.min.css">
+<style>
+:root{
+  --bg:#f4f6f9; --panel:#fff; --line:#e3e7ee; --ink:#1c2430; --mut:#69748a;
+  --pri:#2f5fd0; --pri-ink:#fff; --navy:#183153; --soft:#eef2fb;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font:14px/1.6 -apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif}
+button{font:inherit;color:inherit;background:none;border:none;padding:0;cursor:pointer}
+code,pre{font-family:var(--mono)}
+
+/* ===== 头部 ===== */
+header.top{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:18px;padding:0 20px;height:57px;background:var(--navy);color:#fff}
+.brand{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:700;letter-spacing:.2px;white-space:nowrap}
+.brand .fa-font-awesome{font-size:22px;color:#8fb4ff}
+.brand small{font-weight:400;font-size:12px;color:#aebcd8}
+.tabs{display:flex;gap:6px;margin-left:auto}
+.tabs button{display:flex;align-items:center;gap:7px;padding:7px 16px;border-radius:8px;color:#c6d2ea;font-size:14px}
+.tabs button:hover{background:rgba(255,255,255,.12);color:#fff}
+.tabs button.on{background:#fff;color:var(--navy);font-weight:600}
+
+/* ===== 布局 ===== */
+main{height:calc(100vh - 57px)}
+.view{display:none;height:100%}
+.view.on{display:grid}
+#view-icons{grid-template-columns:238px 1fr}
+#view-docs{grid-template-columns:225px 1fr}
+
+/* ===== 侧栏（分类 / 目录） ===== */
+aside{background:var(--panel);border-right:1px solid var(--line);overflow-y:auto;padding:14px 10px 24px}
+.side-title{font-size:12px;color:var(--mut);padding:2px 10px 8px;letter-spacing:.5px}
+.cat{display:flex;align-items:center;justify-content:space-between;width:100%;padding:7px 10px;border-radius:8px;color:var(--ink);text-align:left;gap:8px}
+.cat:hover{background:var(--soft)}
+.cat.on{background:var(--pri);color:#fff}
+.cat span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cat span em{font-style:normal;font-size:11px;color:var(--mut);margin-left:5px}
+.cat.on span em{color:#cdd9f5}
+.cat b{font-size:11px;font-weight:500;color:var(--mut);background:var(--bg);border-radius:9px;padding:1px 7px;flex:none}
+.cat.on b{background:rgba(255,255,255,.2);color:#fff}
+.toc a{display:block;padding:6px 10px;border-radius:8px;color:var(--mut);text-decoration:none;font-size:13px}
+.toc a:hover{background:var(--soft);color:var(--ink)}
+.toc a.sub{padding-left:24px;font-size:12.5px}
+
+/* ===== 图标区 ===== */
+.icon-wrap{display:flex;flex-direction:column;overflow:hidden}
+.toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 18px;background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+.search-box{position:relative;flex:1 1 300px;max-width:480px}
+.search-box>.fa-magnifying-glass{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--mut);font-size:13px}
+#q{width:100%;padding:9px 34px 9px 34px;border:1px solid var(--line);border-radius:9px;font-size:14px;outline:none;background:var(--bg)}
+#q:focus{border-color:var(--pri);background:#fff;box-shadow:0 0 0 3px rgba(47,95,208,.12)}
+#q-clear{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:26px;height:26px;border-radius:6px;color:var(--mut);display:none}
+#q-clear:hover{background:var(--soft);color:var(--ink)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{padding:6px 13px;border-radius:999px;border:1px solid var(--line);background:var(--panel);font-size:13px;color:var(--mut)}
+.chip:hover{border-color:var(--pri);color:var(--pri)}
+.chip.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.chip-info{cursor:default;color:#15803d;background:#f0fdf4;border-color:#bbf7d0}
+.chip-info:hover{border-color:#86efac;color:#15803d}
+#count{font-size:12.5px;color:var(--mut);margin-left:auto;white-space:nowrap}
+#grid{overflow-y:auto;padding:16px 18px 60px;flex:1;scroll-behavior:smooth}
+.sec-h{font-size:13px;color:var(--mut);font-weight:600;margin:26px 2px 10px;display:flex;align-items:baseline;gap:8px}
+.sec-h:first-child{margin-top:4px}
+.sec-h em{font-style:normal;font-weight:400;font-size:12px;color:#9aa5ba}
+.sec-h b{font-weight:500;font-size:11.5px;color:#9aa5ba;background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:0 8px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(116px,1fr));gap:9px}
+.card{position:relative;display:flex;flex-direction:column;align-items:center;gap:7px;padding:15px 6px 11px;background:var(--panel);border:1px solid var(--line);border-radius:11px;cursor:pointer;transition:border-color .12s,transform .12s,box-shadow .12s;content-visibility:auto;contain-intrinsic-size:112px}
+.card:hover{border-color:var(--pri);box-shadow:0 3px 10px rgba(24,49,83,.08);transform:translateY(-1px)}
+.card>i:first-child{font-size:25px;color:var(--navy);line-height:1}
+.card .cn{max-width:100%;font-size:11.5px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card .cu{font-size:10.5px;color:var(--mut);font-family:var(--mono)}
+.card .qc{position:absolute;top:5px;right:5px;width:24px;height:24px;border-radius:6px;color:var(--mut);opacity:0;display:flex;align-items:center;justify-content:center;font-size:12px}
+.card:hover .qc,.card:focus-within .qc{opacity:1}
+.card .qc:hover{background:var(--soft);color:var(--pri)}
+.card .fc{position:absolute;top:5px;left:5px;width:24px;height:24px;border-radius:6px;color:#b9c2d4;opacity:0;display:flex;align-items:center;justify-content:center;font-size:12px}
+.card:hover .fc,.card:focus-within .fc{opacity:1}
+.card .fc:hover{background:var(--soft);color:#eab308}
+.card.faved .fc{opacity:1;color:#f0a90a}
+.empty .fa-star{font-size:44px;color:#f0a90a;margin-bottom:14px}
+.sec-h .fa-star{color:#f0a90a}
+#fav-wrap .sec-h{margin-top:4px}
+.fav-tools{margin-left:auto;display:flex;gap:2px}
+.fav-tools button{font-size:11.5px;color:var(--pri);padding:2px 8px;border-radius:6px}
+.fav-tools button:hover{background:var(--soft)}
+.m-favrow{margin-bottom:14px}
+.m-favrow button{display:inline-flex;align-items:center;gap:7px;padding:7px 16px;border-radius:999px;border:1px solid var(--line);background:var(--bg);font-size:13px;color:var(--ink)}
+.m-favrow button:hover{border-color:#eab308}
+.m-favrow button.on{background:#fff7e0;border-color:#f3d9a4;color:#a16207}
+.empty{padding:70px 20px;text-align:center;color:var(--mut)}
+.empty .fa-face-meh{font-size:46px;color:#c3cbda;margin-bottom:14px}
+.foot-note{margin:34px 0 8px;font-size:12px;color:#9aa5ba;text-align:center}
+
+/* ===== 弹窗 ===== */
+#overlay{position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:50;display:none;align-items:flex-start;justify-content:center;padding:6vh 16px}
+#overlay.on{display:flex}
+#modal{background:var(--panel);border-radius:15px;max-width:680px;width:100%;max-height:86vh;display:flex;flex-direction:column;box-shadow:0 18px 50px rgba(15,23,42,.25)}
+.m-head{display:flex;align-items:center;gap:16px;padding:18px 20px;border-bottom:1px solid var(--line)}
+.m-icon{font-size:34px;color:var(--navy)}
+.m-title{flex:1;min-width:0}
+.m-title h3{margin:0;font-size:17px;font-family:var(--mono)}
+.m-title p{margin:2px 0 0;font-size:12.5px;color:var(--mut)}
+.m-close{width:32px;height:32px;border-radius:8px;color:var(--mut);font-size:15px;flex:none}
+.m-close:hover{background:var(--soft);color:var(--ink)}
+.m-body{padding:16px 20px 24px;overflow-y:auto}
+.m-sec{font-size:12px;color:var(--mut);margin:16px 0 8px;font-weight:600;letter-spacing:.4px}
+.m-sec:first-child{margin-top:0}
+.m-styles{display:flex;gap:12px;flex-wrap:wrap}
+.m-styles .pv{flex:1 1 150px;border:1px solid var(--line);border-radius:11px;padding:16px 10px 11px;text-align:center}
+.m-styles .pv i{font-size:34px;color:var(--navy);display:block;margin-bottom:9px}
+.m-styles .pv code{font-size:11px;color:var(--mut);word-break:break-all}
+.chips-mini{display:flex;gap:6px;flex-wrap:wrap}
+.chips-mini button{padding:3px 10px;border-radius:999px;background:var(--bg);border:1px solid var(--line);font-size:12px;color:var(--mut);font-family:var(--mono)}
+.chips-mini button:hover{border-color:var(--pri);color:var(--pri)}
+.chips-mini button.v4{background:#fff7ed;border-color:#fed7aa;color:#c2610c}
+.snip{display:flex;align-items:stretch;gap:0;border:1px solid var(--line);border-radius:9px;overflow:hidden;margin-bottom:7px}
+.snip .lb{flex:none;width:150px;font-size:11px;color:var(--mut);background:var(--bg);padding:9px 10px;display:flex;align-items:center}
+.snip code{flex:1;padding:9px 11px;font-size:12.5px;white-space:pre-wrap;word-break:break-all;align-self:center}
+.snip button{flex:none;width:52px;font-size:12px;color:var(--pri);border-left:1px solid var(--line);background:var(--panel)}
+.snip button:hover{background:var(--soft)}
+.m-demo{font-size:30px;color:var(--navy);display:flex;gap:22px;align-items:center;padding:10px 14px;border:1px dashed var(--line);border-radius:11px}
+
+/* ===== 教程 ===== */
+.docs-wrap{overflow-y:auto;background:var(--bg)}
+.docs{max-width:830px;margin:0 auto;padding:30px 30px 90px;background:var(--panel);min-height:100%;border-left:1px solid var(--line);border-right:1px solid var(--line)}
+.docs h1{font-size:23px;margin:6px 0 4px}
+.docs .lead{color:var(--mut);margin:0 0 26px}
+.docs h2{font-size:19px;margin:44px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--line);scroll-margin-top:20px}
+.docs h2 .fa-solid{color:var(--pri);margin-right:8px;font-size:16px}
+.docs h3{font-size:15.5px;margin:26px 0 8px;scroll-margin-top:20px}
+.docs p,.docs li{color:#333c4d}
+.docs code{background:var(--soft);border:1px solid #dfe6f3;border-radius:5px;padding:1px 6px;font-size:12.5px;color:#244084}
+.docs pre{background:#f8f9fc;border:1px solid var(--line);border-radius:10px;padding:13px 15px;overflow-x:auto;font-size:12.5px;line-height:1.65}
+.docs pre code{background:none;border:none;padding:0;color:#1c2430}
+.docs pre .cm{color:#8a93a6}
+.docs pre .hl{color:#244084;font-weight:600}
+.docs table{border-collapse:collapse;width:100%;font-size:13px;margin:10px 0}
+.docs th,.docs td{border:1px solid var(--line);padding:7px 11px;text-align:left;vertical-align:top}
+.docs th{background:var(--soft);font-weight:600}
+.docs .demo{display:flex;gap:26px;align-items:center;flex-wrap:wrap;padding:15px 17px;border:1px dashed #c9d3e6;border-radius:11px;background:#fbfcfe;margin:12px 0}
+.docs .demo i{color:var(--navy)}
+.docs .demo .lbl{font-size:11px;color:var(--mut);font-family:var(--mono)}
+.docs .demo-star::before{content:"\f005";font-family:"Font Awesome 7 Free";font-weight:900;color:#f59e0b;font-size:26px}
+.docs .callout{display:flex;gap:11px;background:#fff8eb;border:1px solid #f5deb8;border-radius:10px;padding:11px 14px;margin:12px 0;font-size:13px}
+.docs .callout .fa-triangle-exclamation{color:#d97706;margin-top:3px}
+.docs .callout.info{background:#eff6ff;border-color:#c3dbfd}
+.docs .callout.info .fa-circle-info{color:var(--pri);margin-top:3px}
+.docs ul.fa-ul li{margin:5px 0}
+.docs .fa-ul .fa-li i{color:var(--pri)}
+.checklist{list-style:none;padding-left:0}
+.checklist li{padding-left:26px;position:relative;margin:7px 0}
+.checklist li::before{content:"\f00c";font-family:"Font Awesome 7 Free";font-weight:900;color:#16a34a;position:absolute;left:0;top:1px}
+#v4box{border:1px solid var(--line);border-radius:11px;overflow:hidden;margin-top:10px}
+#v4filter{width:100%;border:none;border-bottom:1px solid var(--line);padding:9px 13px;font-size:13px;outline:none;background:var(--bg)}
+.tbl-scroll{max-height:430px;overflow-y:auto}
+#v4table{margin:0;border:none;font-size:12.5px}
+#v4table th{position:sticky;top:0;z-index:1;box-shadow:0 1px 0 var(--line)}
+#v4table td code{font-size:12px}
+#v4table .old{color:#b45309}
+#v4table .new{color:#166534}
+
+/* ===== Toast ===== */
+#toast{position:fixed;left:50%;bottom:34px;transform:translateX(-50%) translateY(20px);background:var(--navy);color:#fff;padding:9px 18px;border-radius:9px;font-size:13px;opacity:0;pointer-events:none;transition:.2s;z-index:99;max-width:80vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@media (max-width:940px){
+  #view-icons{grid-template-columns:1fr;grid-template-rows:auto 1fr}
+  #view-docs{grid-template-columns:1fr;grid-template-rows:auto 1fr}
+  aside{border-right:none;border-bottom:1px solid var(--line);max-height:180px}
+  .brand small{display:none}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="brand"><i class="fa-brands fa-font-awesome"></i>Font Awesome 图标库 <small id="ver"></small></div>
+  <nav class="tabs">
+    <button id="tab-icons" class="on" data-tab="icons"><i class="fa-solid fa-magnifying-glass"></i>图标库</button>
+    <button id="tab-docs" data-tab="docs"><i class="fa-solid fa-book"></i>使用教程</button>
+  </nav>
+</header>
+
+<main>
+  <!-- ================= 图标库 ================= -->
+  <section class="view on" id="view-icons">
+    <aside>
+      <div class="side-title">分类</div>
+      <div id="side-cats"></div>
+    </aside>
+    <div class="icon-wrap">
+      <div class="toolbar">
+        <div class="search-box">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input id="q" type="text" autocomplete="off" spellcheck="false"
+                 placeholder="搜索：名称 / 关键词 / 旧版名 / Unicode，如 house、envelope-o、f015、箭头">
+          <button id="q-clear" title="清空"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="chips" id="style-chips">
+          <button class="chip on" data-style="all">全部</button>
+          <button class="chip" data-style="solid">实心 Solid</button>
+          <button class="chip" data-style="regular">常规 Regular</button>
+          <button class="chip" data-style="brands">品牌 Brands</button>
+        </div>
+        <span class="chip chip-info" title="本包为 Font Awesome Free：1992 个图标全部免费可用，无付费项。免费版的限制仅在于 regular 风格只有 169 个。"><i class="fa-solid fa-circle-check"></i> 全部免费可用</span>
+        <span id="count"></span>
+      </div>
+      <div id="grid"></div>
+    </div>
+  </section>
+
+  <!-- ================= 使用教程 ================= -->
+  <section class="view" id="view-docs">
+    <aside class="toc">
+      <div class="side-title">目录</div>
+      <a href="#doc-quick">一、快速开始</a>
+      <a href="#doc-structure">二、目录结构</a>
+      <a href="#doc-styles">三、三种图标风格</a>
+      <a href="#doc-classes">四、常用类名速查</a>
+      <a href="#doc-css">五、CSS / Unicode 写法</a>
+      <a href="#doc-migrate">六、v4 → v7 迁移 ★</a>
+      <a class="sub" href="#doc-migrate-diff">核心差异</a>
+      <a class="sub" href="#doc-migrate-coexist">替换还是共存？</a>
+      <a class="sub" href="#doc-migrate-a">方案 A：改类名（推荐）</a>
+      <a class="sub" href="#doc-migrate-b">方案 B：v4-shims 兼容</a>
+      <a class="sub" href="#doc-migrate-c">方案 C：老字体名兼容</a>
+      <a class="sub" href="#doc-migrate-pitfall">常见坑</a>
+      <a class="sub" href="#doc-migrate-check">迁移检查清单</a>
+      <a href="#doc-deploy">七、部署到实际项目</a>
+      <a class="sub" href="#doc-deploy-what">要拷贝哪些文件</a>
+      <a class="sub" href="#doc-deploy-html">纯 HTML 网站</a>
+      <a class="sub" href="#doc-deploy-vite">前端工程 Vite/Vue/React</a>
+      <a href="#doc-faq">八、常见问题排查</a>
+      <a href="#doc-appendix">九、v4 对照总表</a>
+    </aside>
+
+    <div class="docs-wrap">
+      <article class="docs">
+        <h1>Font Awesome 7 离线使用教程</h1>
+        <p class="lead">适用于本目录的 <b>Font Awesome Free 7.3.1</b>（web 版）。全部内容离线可用，覆盖：基本用法、CSS/Unicode 写法，以及从 Font Awesome 4 老项目迁移到 7 的完整方案。</p>
+
+        <h2 id="doc-quick"><i class="fa-solid fa-rocket"></i>一、快速开始</h2>
+        <h3>1. 用 VS Code Live Server 打开本页</h3>
+        <ol>
+          <li>VS Code 打开 <code>fontawesome-free-7.3.1-web</code> 文件夹；</li>
+          <li>安装 <b>Live Server</b> 扩展（第一次需要）；</li>
+          <li>右下角点 <b>Go Live</b>（或在 html 文件上右键 → Open with Live Server）；</li>
+          <li>浏览器访问 <code>http://127.0.0.1:5500/fa-cheatsheet.html</code>。</li>
+        </ol>
+        <div class="callout info"><i class="fa-solid fa-circle-info"></i><div>本页的数据是预生成的 <code>fa-cheatsheet-data.js</code>（用 <code>&lt;script&gt;</code> 加载，不用 fetch），所以<b>直接双击 html 文件（file:// 方式）也能打开使用</b>。但你的项目页面建议始终走 http（Live Server），更接近真实部署。</div></div>
+
+        <h3>2. 在你自己的页面里用图标（只要三行）</h3>
+        <pre><code><span class="cm">&lt;!-- 1. 引入样式（相对路径按你的目录调整，需保证能访问到 css/ 和 webfonts/）--&gt;</span>
+&lt;link rel="stylesheet" href="css/all.min.css"&gt;
+
+<span class="cm">&lt;!-- 2. 使用：风格前缀 + 图标名 --&gt;</span>
+&lt;i class="<span class="hl">fa-solid fa-house</span>"&gt;&lt;/i&gt;
+&lt;i class="<span class="hl">fa-brands fa-github</span>"&gt;&lt;/i&gt;</code></pre>
+        <div class="callout"><i class="fa-solid fa-triangle-exclamation"></i><div><b>webfonts/ 目录必须和 css/ 一起部署</b>：<code>all.min.css</code> 里写的是 <code>url(../webfonts/fa-solid-900.woff2)</code>，按 css 文件的相对位置找字体。只拷 css 不拷 webfonts，图标会显示成方块。</div></div>
+        <div class="demo"><i class="fa-solid fa-house fa-2x"></i><i class="fa-brands fa-github fa-2x"></i><i class="fa-solid fa-magnifying-glass fa-2x"></i><i class="fa-solid fa-user fa-2x"></i><i class="fa-regular fa-envelope fa-2x"></i><span class="lbl">↑ 上面就是本地字体渲染的真实效果</span></div>
+
+        <h2 id="doc-structure"><i class="fa-solid fa-folder-tree"></i>二、目录结构：哪些文件是你需要的</h2>
+        <pre><code>fontawesome-free-7.3.1-web/
+├─ css/
+│  ├─ all.min.css          <span class="cm">← 核心，必引：包含 solid/regular/brands 全部类</span>
+│  ├─ v4-shims.min.css     <span class="cm">← 可选：v4 旧类名兼容（见第六章方案 B）</span>
+│  └─ v4-font-face.min.css <span class="cm">← 可选：老 "FontAwesome" 字体名兼容（方案 C）</span>
+├─ webfonts/               <span class="cm">← 必须随 css 一起部署（字体文件）</span>
+│  ├─ fa-solid-900.woff2
+│  ├─ fa-regular-400.woff2
+│  ├─ fa-brands-400.woff2
+│  └─ fa-v4compatibility.woff2  <span class="cm">← 仅方案 C 用到</span>
+├─ js/                     <span class="cm">← SVG+JS 另一种用法（可选，本教程以 CSS 方式为主）</span>
+├─ svgs/ · svgs-full/ · sprites/  <span class="cm">← 单个 SVG 文件 / 雪碧图（可选）</span>
+├─ metadata/               <span class="cm">← 图标元数据，本页数据即来源于此（开发参考）</span>
+├─ scss/                   <span class="cm">← Sass 源码（可选）</span>
+├─ fa-cheatsheet.html      <span class="cm">← 本页（图标搜索 + 教程）</span>
+├─ fa-cheatsheet-data.js   <span class="cm">← 本页数据（脚本生成）</span>
+└─ fa-cheatsheet-build.py  <span class="cm">← 升级 FA 版本后重新生成本页数据</span></code></pre>
+        <p><b>最小部署集</b>：只用字体方式的话，带走 <code>css/all.min.css</code> + 整个 <code>webfonts/</code> 目录即可，其余都可以不发布。</p>
+
+        <h2 id="doc-styles"><i class="fa-solid fa-swatchbook"></i>三、三种图标风格</h2>
+        <table>
+          <tr><th>风格</th><th>类前缀</th><th>字重</th><th>字体家族</th><th>免费版数量</th></tr>
+          <tr><td>实心 Solid</td><td><code>fa-solid</code></td><td>900</td><td>Font Awesome 7 Free</td><td>1422 个</td></tr>
+          <tr><td>常规 Regular</td><td><code>fa-regular</code></td><td>400</td><td>Font Awesome 7 Free</td><td>169 个</td></tr>
+          <tr><td>品牌 Brands</td><td><code>fa-brands</code></td><td>400</td><td>Font Awesome 7 Brands</td><td>572 个</td></tr>
+        </table>
+        <ul>
+          <li><b>同名图标的两种风格共用同一个 Unicode</b>，只是字重不同；brands 是独立字体。</li>
+          <li>免费版 regular 只有 169 个。v4 里大量 <code>-o</code>（outline）图标对应的正是 regular 风格——迁移时如果 regular 里找不到，就改用 solid。</li>
+          <li>v5/v6 的短前缀 <code>fas / far / fab</code> 在 7.3.1 里仍被 CSS 识别（兼容保留），但推荐写全称 <code>fa-solid / fa-regular / fa-brands</code>。</li>
+          <li>Sharp 等其他家族为 Pro 付费内容，Free 版没有。</li>
+        </ul>
+        <div class="callout info"><i class="fa-solid fa-circle-info"></i><div><b>本包图标全部免费可用</b>：图标库里的 1992 个图标（含全部品牌 Logo、全部 69 个分类）都是 Free 版内容，可免费商用（图标 CC BY 4.0、字体 SIL OFL 1.1、代码 MIT）。Pro 版的差异在于额外的 light / thin / duotone / sharp 风格和更多图标——<b>免费包的元数据里不含任何付费图标</b>，所以本页搜到的都能放心用，不存在"看到却用不了"的坑。</div></div>
+
+        <h2 id="doc-classes"><i class="fa-solid fa-list-check"></i>四、常用类名速查</h2>
+        <table>
+          <tr><th>作用</th><th>类名</th><th>示例</th></tr>
+          <tr><td>放大缩小</td><td><code>fa-2xs xs sm lg xl 2xl</code>、<code>fa-1x</code> ~ <code>fa-10x</code></td><td><code>fa-solid fa-house fa-2x</code></td></tr>
+          <tr><td>固定宽度（对齐列表用）</td><td><code>fa-fw</code></td><td><code>fa-solid fa-house fa-fw</code></td></tr>
+          <tr><td>旋转 / 翻转</td><td><code>fa-rotate-90/180/270</code>、<code>fa-flip-horizontal/vertical</code></td><td><code>fa-solid fa-image fa-rotate-90</code></td></tr>
+          <tr><td>动画</td><td><code>fa-spin</code>、<code>fa-pulse</code>、<code>fa-beat</code>、<code>fa-bounce</code>、<code>fa-fade</code>、<code>fa-beat-fade</code>、<code>fa-shake</code></td><td><code>fa-solid fa-spinner fa-spin</code></td></tr>
+          <tr><td>层叠（两图标叠加）</td><td><code>fa-stack</code> + <code>fa-stack-1x / fa-stack-2x</code>、<code>fa-inverse</code></td><td>见下方演示</td></tr>
+          <tr><td>边框 / 浮动</td><td><code>fa-border</code>、<code>fa-pull-left / fa-pull-right</code></td><td>—</td></tr>
+          <tr><td>无序列表图标</td><td><code>fa-ul</code>（加在 ul）+ <code>fa-li</code>（加在 span）</td><td>见下方演示</td></tr>
+        </table>
+        <div class="demo">
+          <i class="fa-solid fa-star fa-2xs"></i><span class="lbl">2xs</span>
+          <i class="fa-solid fa-star fa-sm"></i><span class="lbl">sm</span>
+          <i class="fa-solid fa-star fa-lg"></i><span class="lbl">lg</span>
+          <i class="fa-solid fa-star fa-2xl"></i><span class="lbl">2xl</span>
+          <i class="fa-solid fa-star fa-3x"></i><span class="lbl">3x</span>
+          <i class="fa-solid fa-image fa-rotate-90"></i><span class="lbl">rotate-90</span>
+          <i class="fa-solid fa-image fa-flip-horizontal"></i><span class="lbl">flip-h</span>
+        </div>
+        <div class="demo">
+          <i class="fa-solid fa-spinner fa-spin fa-2x"></i><span class="lbl">spin</span>
+          <i class="fa-solid fa-circle-notch fa-spin fa-2x"></i><span class="lbl">spin</span>
+          <i class="fa-solid fa-heart fa-beat fa-2x"></i><span class="lbl">beat</span>
+          <i class="fa-solid fa-bell fa-shake fa-2x"></i><span class="lbl">shake</span>
+          <span class="fa-stack" style="font-size:26px"><i class="fa-regular fa-circle fa-stack-2x"></i><i class="fa-solid fa-house fa-stack-1x"></i></span><span class="lbl">stack</span>
+        </div>
+        <div class="demo">
+          <ul class="fa-ul" style="margin:0">
+            <li><span class="fa-li"><i class="fa-solid fa-check"></i></span>fa-ul / fa-li 列表演示</li>
+            <li><span class="fa-li"><i class="fa-solid fa-angle-right"></i></span>图标自动对齐在文字左侧</li>
+          </ul>
+        </div>
+
+        <h2 id="doc-css"><i class="fa-solid fa-code"></i>五、在 CSS / HTML 里直接用 Unicode</h2>
+        <h3>方式 1：伪元素 ::before（老项目最常见的自定义写法）</h3>
+        <pre><code>.my-star::before {
+  font-family: <span class="hl">"Font Awesome 7 Free"</span>;  <span class="cm">/* 品牌图标用 "Font Awesome 7 Brands" */</span>
+  font-weight: <span class="hl">900</span>;                     <span class="cm">/* solid=900，regular=400，brands=400 */</span>
+  content: <span class="hl">"\f005"</span>;                    <span class="cm">/* 五角星 unicode，本页每个图标都标了 */</span>
+}</code></pre>
+        <div class="demo"><span class="demo-star"></span><span class="lbl">上面就是这段 CSS 的真实渲染</span></div>
+
+        <h3>方式 2：HTML 实体</h3>
+        <pre><code>&lt;span style="font-family:'Font Awesome 7 Free';font-weight:900"&gt;<span class="hl">&amp;#xf015;</span>&lt;/span&gt;</code></pre>
+
+        <h3>方式 3（FA7 新增）：--fa 变量</h3>
+        <p>FA7 的 CSS 把每个图标的字符放进 <code>--fa</code> 变量，再用统一的 <code>::before</code> 输出。所以你可以不记类名，直接给变量赋值：</p>
+        <pre><code>&lt;i class="fa" style="<span class="hl">--fa: '\f015'</span>"&gt;&lt;/i&gt;
+
+<span class="cm">/* 或者在自定义类里定义 */</span>
+.icon-home { --fa: "\f015"; }</code></pre>
+        <div class="demo"><i class="fa" style="--fa: '\f015'"></i><span class="lbl">↑ --fa 变量方式渲染的 house</span></div>
+        <p>提示：本页点任意图标弹出的详情里，<b>这几种写法都会按该图标自动生成好</b>，复制即可。</p>
+
+        <h2 id="doc-migrate"><i class="fa-solid fa-right-left"></i>六、从 Font Awesome 4 迁移到 7（重点）</h2>
+
+        <h3 id="doc-migrate-diff">6.1 核心差异</h3>
+        <table>
+          <tr><th>项目</th><th>FA4 老写法</th><th>FA7 新写法</th></tr>
+          <tr><td>类名语法</td><td><code>fa fa-home</code>（一个 fa 前缀包打天下）</td><td><code>fa-solid fa-house</code>（风格前缀 + 图标名，两个类）</td></tr>
+          <tr><td>空心 / outline 图标</td><td>加 <code>-o</code> 后缀：<code>fa fa-star-o</code></td><td>换成 regular 风格：<code>fa-regular fa-star</code></td></tr>
+          <tr><td>品牌图标</td><td>也是 <code>fa fa-qq</code></td><td>用 brands 前缀：<code>fa-brands fa-qq</code></td></tr>
+          <tr><td>字体家族名</td><td><code>"FontAwesome"</code></td><td><code>"Font Awesome 7 Free" / "Font Awesome 7 Brands"</code></td></tr>
+          <tr><td>图标重命名</td><td>fa-search、fa-trash、fa-times…</td><td>fa-magnifying-glass、fa-trash-can、fa-xmark…（大量改名，别名见附录）</td></tr>
+          <tr><td>尺寸 / 动画类</td><td>fa-lg、fa-2x、fa-spin…</td><td><b>不变</b>，可直接沿用，还新增了 fa-2xs~2xl、fa-beat 等</td></tr>
+        </table>
+        <p>Unicode 码位绝大多数没变（<code>f015</code> 还是 house），所以<code>content:"\f015"</code> 这种老 CSS 基本不受影响；受影响的主要是<b>类名</b>。</p>
+
+        <h3 id="doc-migrate-coexist">6.2 先决定：用 v7 整体替换，还是 v4/v7 共存？</h3>
+        <p>结论先行：<b>推荐「v7 整体替换 + v4-shims 过渡」，不建议 v4 和 v7 长期共存。</b>v7 加 shims 已经能覆盖 v4 的全部类名写法，共存只会带来两倍字体下载和排查困难的样式冲突。</p>
+        <table>
+          <tr><th style="width:34%">你的情况</th><th>建议做法</th></tr>
+          <tr>
+            <td>老项目只引了 v4 的 CSS（<code>font-awesome.min.css</code>，最常见）</td>
+            <td>这是官方唯一形态，v4 本来就没有 JS。删掉 <code>font-awesome.min.css</code> 和 <code>fonts/fontawesome-webfont.*</code>，换成 v7 的 <code>all.min.css + webfonts/</code>，再在其后引入 <code>v4-shims.min.css</code>——老代码立即全部恢复显示。之后按方案 A 逐步改类名，改完删掉 shims。</td>
+          </tr>
+          <tr>
+            <td>老项目引过 fa 的 JS（v5/v6 的 <code>all.js</code>，或第三方封装的 fa 脚本）</td>
+            <td>v7 对应 <code>js/all.min.js</code>；JS 方式下的 v4 老类名兼容垫片是 <code>js/v4-shims.min.js</code>（放在 all.js 之后）。注意：<b>CSS 字体方式和 JS(SVG) 方式二选一</b>，同一页面不要同时引入，否则图标会被处理两次。拿不准可用包内 <code>js/conflict-detection.js</code> 排查冲突。</td>
+          </tr>
+          <tr>
+            <td>过渡期确实想两版同时挂（完全不敢动老页面）</td>
+            <td>技术上可行：两版字体家族名不同（<code>"FontAwesome"</code> vs <code>"Font Awesome 7 Free"</code>），互不覆盖字体本身。但 <code>.fa</code> 基类两边都定义，<b>后加载的样式表会覆盖先加载的</b>，老图标的渲染会随引入顺序漂移；且两套字体都会被下载。若必须共存：老页面只引 v4、新页面只引 v7（按页面隔离），并设定明确的收尾时间，不要在同一页面混引两版完整 CSS。</td>
+          </tr>
+        </table>
+
+        <h3 id="doc-migrate-a">6.3 方案 A：逐个替换类名（推荐，一劳永逸）</h3>
+        <ol>
+          <li>在老项目里全局搜索 <code>class="fa fa-</code>，把所有用图标的地方列出来；</li>
+          <li>打开<b>本页搜索框</b>，直接输入 v4 旧名（如 <code>home</code>、<code>envelope-o</code>）或旧编码（如 <code>f015</code>）——本页已收录全部 v4 旧名映射，搜旧名就能找到新图标；</li>
+          <li>点开图标详情，复制新生成的 <code>&lt;i&gt;</code> 写法替换。</li>
+        </ol>
+        <pre><code><span class="cm">&lt;!-- FA4 老代码 --&gt;</span>
+&lt;i class="fa fa-home"&gt;&lt;/i&gt;        &lt;!-- 改成 → &lt;i class="fa-solid fa-house"&gt;&lt;/i&gt; --&gt;
+&lt;i class="fa fa-search"&gt;&lt;/i&gt;      &lt;!-- 改成 → &lt;i class="fa-solid fa-magnifying-glass"&gt;&lt;/i&gt; --&gt;
+&lt;i class="fa fa-envelope-o"&gt;&lt;/i&gt;  &lt;!-- 改成 → &lt;i class="fa-regular fa-envelope"&gt;&lt;/i&gt; --&gt;
+&lt;i class="fa fa-qq"&gt;&lt;/i&gt;          &lt;!-- 改成 → &lt;i class="fa-brands fa-qq"&gt;&lt;/i&gt; --&gt;</code></pre>
+        <p>改完类名后引入 <code>css/all.min.css</code> 即可，不再需要任何 shim 文件。</p>
+
+        <h3 id="doc-migrate-b">6.4 方案 B：不改老代码，引入 v4-shims（快速过渡）</h3>
+        <p>如果老代码量大、暂时不想逐个改，FA7 仍然自带 v4 兼容垫片。在 <code>all.min.css</code> <b>之后</b>引入：</p>
+        <pre><code>&lt;link rel="stylesheet" href="css/all.min.css"&gt;
+&lt;link rel="stylesheet" href="<span class="hl">css/v4-shims.min.css</span>"&gt;
+
+&lt;!-- 老代码原样保留，仍能显示 --&gt;
+&lt;i class="fa fa-envelope-o"&gt;&lt;/i&gt;</code></pre>
+        <p>原理：<code>v4-shims.css</code> 里是对每个旧类名的补丁规则，例如 <code>.fa.fa-envelope-o { font-family:"Font Awesome 7 Free"; font-weight:400; --fa:"\f0e0"; }</code>，把 v4 命名翻译成 v7 的字体与字符。</p>
+        <ul>
+          <li>适用范围：HTML 里 <code>class="fa fa-xxx"</code> 这种字体方式的老写法；</li>
+          <li>如果你的老项目用的是 SVG+JS 方式（引入过 <code>js/all.min.js</code>），对应垫片是 <code>js/v4-shims.min.js</code>，在它之后引入即可；</li>
+          <li>shims 只做“旧名 → 新图标”的映射，<b>不能</b>补齐免费版没有的 regular 图标（见下面常见坑）。</li>
+        </ul>
+
+        <h3 id="doc-migrate-c">6.5 方案 C：老 CSS 里直接写了 "FontAwesome" 字体名 / content 码位</h3>
+        <p>有些老项目在自定义 CSS 里绕过类名直接写字体，例如：</p>
+        <pre><code>.my-icon::before {
+  font-family: <span class="hl">"FontAwesome"</span>;   <span class="cm">← FA4 的字体名，v7 字体里没有这个名字</span>
+  content: <span class="hl">"\f041"</span>;             <span class="cm">← 个别码位在 v5+ 已让给别的图标</span>
+}</code></pre>
+        <p>这时不用改 CSS，引入字体名兼容层即可：</p>
+        <pre><code>&lt;link rel="stylesheet" href="css/all.min.css"&gt;
+&lt;link rel="stylesheet" href="<span class="hl">css/v4-font-face.min.css</span>"&gt;</code></pre>
+        <p>它会以 <code>"FontAwesome"</code> 这个老名字注册 4 组 @font-face，按 unicode-range 分流：常规码位 → 新的 solid/regular/brands 字体文件；v4 时代被重新分配的码位（如 <code>f041</code> 地图钉、<code>f09a</code> facebook 等）→ 专门的 <code>fa-v4compatibility.woff2</code>，保证老码位还能显示成老图标。</p>
+
+        <h3 id="doc-migrate-pitfall">6.6 常见坑</h3>
+        <ul class="fa-ul">
+          <li><span class="fa-li"><i class="fa-solid fa-circle-xmark"></i></span><b><code>-o</code> 图标显示不出来</b>：免费版 regular 只有 169 个。shims 会把 <code>fa-xxx-o</code> 映射到 regular 风格，若该图标没有 regular 版（如 <code>fa-battery-0</code> 这类本就不是 outline 的），检查样式是否落在 solid 上；实在没有就手动改用 solid。</li>
+          <li><span class="fa-li"><i class="fa-solid fa-circle-xmark"></i></span><b>图标显示为方块</b>：90% 是 <code>webfonts/</code> 没部署或路径不对。F12 → Network 看字体请求是否 404。</li>
+          <li><span class="fa-li"><i class="fa-solid fa-circle-xmark"></i></span><b>品牌图标不显示</b>：brands 是独立字体，必须用 <code>fa-brands</code> 前缀（或 shims 正确接管）。</li>
+          <li><span class="fa-li"><i class="fa-solid fa-circle-xmark"></i></span><b>改了没生效</b>：浏览器缓存了老 CSS。硬刷新（Cmd+Shift+R）/ 清缓存，Live Server 一般会自动重载。</li>
+          <li><span class="fa-li"><i class="fa-solid fa-circle-xmark"></i></span><b>个别 v4 图标在 v7 搜不到</b>：极少数被合并或改名后没进别名表。用附录总表按旧名查一遍，或到 <code>metadata/shims.json</code> 里确认。</li>
+          <li><span class="fa-li"><i class="fa-solid fa-circle-check"></i></span><b>不用改的部分</b>：<code>fa-lg / fa-2x / fa-fw / fa-spin / fa-rotate-90</code> 等工具类名称全部沿用； brands 图标名大多也没变。</li>
+        </ul>
+
+        <h3 id="doc-migrate-check">6.7 迁移检查清单</h3>
+        <ul class="checklist">
+          <li>全局搜索 <code>fa fa-</code>，列出所有图标使用点</li>
+          <li>逐个用本页搜索旧名，确认新类名（regular 缺失时改用 solid）</li>
+          <li>检查 CSS 里是否硬编码了 <code>font-family:"FontAwesome"</code> 或旧码位 → 决定是否需要方案 C</li>
+          <li>部署 <code>css/ + webfonts/</code>，确认相对路径能访问（Network 无 404）</li>
+          <li>过不去的老代码先挂 <code>v4-shims.min.css</code>，排期后再走方案 A</li>
+          <li>删掉 v4 时代的 <code>fontawesome.css / fontawesome-webfont.*</code> 老文件，避免新旧混用</li>
+        </ul>
+
+        <h2 id="doc-deploy"><i class="fa-solid fa-upload"></i>七、部署到实际项目</h2>
+
+        <h3 id="doc-deploy-what">7.1 要拷贝哪些文件</h3>
+        <p>最小集合只有两样：<b>一个 CSS 文件 + 整个 webfonts 目录</b>。</p>
+        <pre><code>your-project/
+└─ assets/
+   └─ fontawesome/              <span class="cm">← 建议独立成目录，升级时整体替换</span>
+      ├─ css/
+      │  └─ all.min.css         <span class="cm">← 唯一必需的 CSS（三种风格全包含）</span>
+      └─ webfonts/              <span class="cm">← 整个目录原样拷贝（4 个 woff2，共约 300KB）</span>
+         ├─ fa-solid-900.woff2
+         ├─ fa-regular-400.woff2
+         ├─ fa-brands-400.woff2
+         └─ fa-v4compatibility.woff2   <span class="cm">← 仅方案 C 用到，一并带上也不亏</span></code></pre>
+        <ul>
+          <li>按需可选：<code>css/v4-shims.min.css</code>（v4 老类名过渡）、<code>css/v4-font-face.min.css</code>（老字体名兼容）；</li>
+          <li>其余内容——<code>js/、scss/、sprites/、svgs/、metadata/</code> 以及本页三件套——<b>都不需要发布</b>；</li>
+          <li>目录名不要求叫 fontawesome，放 <code>assets/lib/</code>、<code>static/vendors/</code> 都行，关键是下面这条。</li>
+        </ul>
+        <div class="callout"><i class="fa-solid fa-triangle-exclamation"></i><div><b>css/ 和 webfonts/ 必须保持「兄弟目录」的相对位置</b>：CSS 内部写死了 <code>url(../webfonts/…)</code>，是从 CSS 文件自身位置去解析的。两个目录整体搬到哪里都能用；但把 webfonts 合并进 css/、或拆到别处，字体就会 404，图标全变方块。</div></div>
+
+        <h3 id="doc-deploy-html">7.2 纯 HTML / 多页网站</h3>
+        <p>在每个用到图标的页面 <code>&lt;head&gt;</code> 里引入（路径按你的目录层级调整）：</p>
+        <pre><code><span class="cm">&lt;!-- 推荐根绝对路径（以 / 开头），页面换层级不容易断 --&gt;</span>
+&lt;link rel="stylesheet" href="<span class="hl">/assets/fontawesome/css/all.min.css</span>"&gt;
+
+<span class="cm">&lt;!-- 页面里直接用 --&gt;</span>
+&lt;i class="fa-solid fa-house"&gt;&lt;/i&gt;</code></pre>
+        <p>如果站点部署在子路径下（比如内网 <code>http://内网IP/app/</code>），根路径会失效，改用相对路径：<code>href="assets/fontawesome/css/all.min.css"</code>（相对当前页面），并注意多级目录页面要补 <code>../</code>。</p>
+
+        <h3 id="doc-deploy-vite">7.3 前端工程（Vite / Vue / React / webpack）</h3>
+        <p><b>方式一（推荐）：npm 安装。</b>版本交给包管理器，打包器会自动把 CSS 里的字体文件复制进产物并改写路径，完全不用操心 webfonts：</p>
+        <pre><code>npm install @fortawesome/fontawesome-free</code></pre>
+        <pre><code><span class="cm">// 入口文件顶部（main.js / main.ts / index.js），全项目引一次即可</span>
+import <span class="hl">'@fortawesome/fontawesome-free/css/all.min.css'</span>;</code></pre>
+        <p><b>方式二：拷贝到静态目录</b>（Vite 的 <code>public/</code>、webpack 的 <code>static/</code>），和 7.1 的结构完全一样：</p>
+        <pre><code>your-project/
+└─ public/
+   └─ fontawesome/
+      ├─ css/all.min.css
+      └─ webfonts/*.woff2
+
+<span class="cm">&lt;!-- index.html 里（public 下的内容发布后在站点根）--&gt;</span>
+&lt;link rel="stylesheet" href="<span class="hl">/fontawesome/css/all.min.css</span>"&gt;</code></pre>
+        <ul>
+          <li>Vue / React 组件里直接写 <code>&lt;i class="fa-solid fa-user"&gt;&lt;/i&gt;</code> 即可，就是普通标签，不需要注册任何组件；</li>
+          <li>两种方式<b>选一种</b>，不要 npm 装一份、public 又拷一份，容易出现版本漂移；</li>
+          <li>如果项目对体积敏感：可以改用 <code>svgs/</code> 目录里的单个 SVG 内联，或用 fonttools 按用到的码位给 woff2 瘦身（见第八章）。</li>
+        </ul>
+
+        <h3 id="doc-deploy-q">7.4 部署后不显示？按这个查</h3>
+        <table>
+          <tr><th>现象</th><th>原因与处理</th></tr>
+          <tr><td>字体 404（Network 里 woff2 标红）</td><td>webfonts 目录没拷 / 被构建规则排除 / 与 css 的相对位置不对。对照 7.1 修复目录结构。</td></tr>
+          <tr><td>本地好的，上线变方块</td><td>服务器对 .woff2 的 MIME / 缓存策略问题，或打包工具没把字体文件带进产物（检查构建配置的 assets 规则）。</td></tr>
+          <tr><td>改路径后部分页面好部分坏</td><td>绝对/相对路径混用。统一成一种，多页站优先根绝对路径。</td></tr>
+          <tr><td>要升级 FA 版本</td><td>下载新版包，整体替换 fontawesome 目录；再重跑 <code>fa-cheatsheet-build.py</code> 更新本页数据。</td></tr>
+        </table>
+
+        <h2 id="doc-faq"><i class="fa-solid fa-circle-question"></i>八、常见问题排查</h2>
+        <table>
+          <tr><th>现象 / 问题</th><th>排查顺序</th></tr>
+          <tr><td>这套环境能完全离线运行吗？</td><td><b>能。</b>页面、字体、图标数据全部是本地文件，无任何外部网络请求（CDN、Google Fonts 之类一概没有）。断网、内网服务器、直接双击打开都可以用。</td></tr>
+          <tr><td>常用图标保存在哪里？换浏览器还在吗？</td><td>存在浏览器 <b>localStorage</b> 里，完全本地、不连任何数据库或服务。注意它「跟着浏览器 + 打开方式」走：Live Server（<code>http://127.0.0.1:5500</code>）和双击打开（file://）是两个独立存储，互不相通，换浏览器也不通。迁移用「常用图标」视图右上角的 <b>导出 / 导入</b>。清理浏览器网站数据会一并清掉，重要集合建议导出一份存档。</td></tr>
+          <tr><td>图标显示为方块 □ 或空白</td><td>① Network 面板看 <code>fa-solid-900.woff2</code> 是否 200 ② <code>webfonts/</code> 是否与 css 一起部署 ③ 是否用了 <code>fa-regular</code> 但该图标免费版没有 regular（换 solid 试）④ CSS 与字体文件是否同一个版本</td></tr>
+          <tr><td> brands 图标（github、qq）不显示</td><td>是否用 <code>fa-brands</code> 前缀；是否只引入了 <code>solid.css</code>（要么引入 all，要么补 brands.css）</td></tr>
+          <tr><td>老类名 <code>fa fa-xxx</code> 部分能显示部分不能</td><td>能显示的是 FA7 内置别名；不能的引 <code>v4-shims.min.css</code>（第六章方案 B）</td></tr>
+          <tr><td>本地 file:// 打开字体不加载</td><td>部分浏览器限制本地字体跨目录，走 Live Server（http）即可</td></tr>
+          <tr><td>想给字体瘦身</td><td>可用 <code>fonttools</code>（pyftsubset）按用到的码位子集化 woff2，或改用 <code>svgs/</code> 里的单个 SVG 内联</td></tr>
+          <tr><td>授权</td><td>图标 CC BY 4.0、字体 SIL OFL 1.1、代码 MIT，商用免费；详见包内 <code>LICENSE.txt</code></td></tr>
+        </table>
+
+        <h2 id="doc-appendix"><i class="fa-solid fa-table-list"></i>九、附录：v4 → v7 类名对照总表</h2>
+        <p>共 <b id="v4count"></b> 条，来自 <code>metadata/shims.json</code>（旧名 → 新名）。改代码前建议先在上面的搜索框里搜旧名验证实际效果。</p>
+        <div id="v4box">
+          <input id="v4filter" type="text" placeholder="过滤：输入旧名或新名，如 envelope、home">
+          <div class="tbl-scroll">
+            <table id="v4table">
+              <thead><tr><th style="width:38%">FA4 旧类名</th><th style="width:12%">效果</th><th>FA7 新类名</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <p class="foot-note">本页数据由 <code>fa-cheatsheet-build.py</code> 从本地 metadata 生成 · 升级 Font Awesome 后重新运行脚本即可更新</p>
+      </article>
+    </div>
+  </section>
+</main>
+
+<!-- 图标详情弹窗 -->
+<div id="overlay">
+  <div id="modal" role="dialog" aria-modal="true">
+    <div class="m-head">
+      <i class="m-icon" id="m-icon"></i>
+      <div class="m-title"><h3 id="m-name"></h3><p id="m-meta"></p></div>
+      <button class="m-close" id="m-close" title="关闭 (Esc)"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="m-body" id="m-body"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="fa-cheatsheet-data.js"></script>
+<script>
+(function(){
+"use strict";
+const D = window.FA_DATA;
+const $  = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const STYLE_ORDER = ["solid","regular","brands"];
+const STYLE_ZH    = {solid:"实心", regular:"常规", brands:"品牌"};
+const STYLE_PREFIX= {solid:"fa-solid", regular:"fa-regular", brands:"fa-brands"};
+
+/* ---------- 数据准备 ---------- */
+const CATMAP = {};
+D.cats.forEach(c => CATMAP[c.id] = c);
+const BY_NAME = {};
+D.icons.forEach(o => BY_NAME[o.n] = o);
+const ICONS = D.icons.map((o,i) => {
+  const v4o = [];              // 指向该图标的 v4 旧名（icons.json 别名之外补充的）
+  const zh = [...new Set(o.c.map(id => CATMAP[id] ? CATMAP[id].zh : ""))].filter(Boolean);
+  const en = o.c.map(id => CATMAP[id] ? CATMAP[id].label : "").filter(Boolean);
+  return {i, n:o.n, u:o.u, l:o.l||o.n, s:o.s, c:o.c, k:o.k||[], a:o.a||[], au:o.au||[], v4o, zh, en};
+});
+ICONS.forEach(o => BY_NAME[o.n] = o);
+Object.keys(D.v4).forEach(old => {
+  const t = BY_NAME[D.v4[old].n];
+  if (t && old !== t.n && !t.a.includes(old) && !t.v4o.includes(old)) t.v4o.push(old);
+});
+ICONS.forEach(o => { o.hay = [o.n, o.l, o.u, o.k.join(" "), o.a.join(" "), o.v4o.join(" "), o.au.join(" "), o.zh.join(" "), o.en.join(" ")].join(" ").toLowerCase(); });
+
+/* ---------- 常用图标：localStorage 持久化，纯本地，不依赖任何服务 ---------- */
+function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
+function lsSet(k,v){ try { localStorage.setItem(k,v); return true; } catch(e){ return false; } }
+const storageOK = (function(){ try { localStorage.setItem("__fa_t","1"); localStorage.removeItem("__fa_t"); return true; } catch(e){ return false; } })();
+let favs = new Set();
+(function(){
+  const raw = lsGet("fa-favs"); if (!raw) return;
+  try { const arr = JSON.parse(raw); if (Array.isArray(arr)) arr.forEach(n => { if (BY_NAME[n]) favs.add(n); }); } catch(e){}
+})();
+function saveFavs(){ lsSet("fa-favs", JSON.stringify([...favs])); }
+
+/* ---------- 状态 ---------- */
+const state = {cat:"all", style:"all", q:""};
+let toastTimer = null;
+
+/* ---------- 工具 ---------- */
+function hexFromQuery(q){
+  const m = q.match(/^(?:&#x|&#X|0x|u\+|\\u|\\x|\x)?([0-9a-f]{3,5});?$/);
+  return m ? m[1] : null;
+}
+function toast(msg){
+  const t = $("#toast"); t.textContent = msg; t.classList.add("on");
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("on"), 1500);
+}
+async function copyText(text){
+  try { await navigator.clipboard.writeText(text); toast("已复制：" + text); }
+  catch(e){
+    const ta = document.createElement("textarea");
+    ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand("copy"); toast("已复制：" + text); } catch(_){ toast("复制失败，请手动复制"); }
+    ta.remove();
+  }
+}
+
+/* ---------- 搜索 ---------- */
+function scoreIcon(o, q, hx){
+  let best = 0;
+  if (o.n === q) best = 100;
+  else if (o.n.startsWith(q)) best = 84;
+  else if (o.n.includes(q)) best = 60;
+  if (hx) {
+    if (o.u === hx) best = Math.max(best, 95);
+    else if (o.au.includes(hx)) best = Math.max(best, 90);
+  }
+  for (const a of o.a.concat(o.v4o)) {
+    if (a === q) best = Math.max(best, 88);   // 旧版名精确命中排在最前（迁移场景）
+    else if (a.startsWith(q)) best = Math.max(best, 55);
+    else if (a.includes(q)) best = Math.max(best, 35);
+  }
+  if (o.l.toLowerCase().includes(q)) best = Math.max(best, 30);
+  if (o.k.some(t => t.includes(q))) best = Math.max(best, 25);
+  if (o.zh.join(" ").includes(q) || o.en.join(" ").toLowerCase().includes(q)) best = Math.max(best, 20);
+  if (!best && o.hay.includes(q)) best = 10;
+  return best;
+}
+
+/* ---------- 卡片 ---------- */
+function prefStyle(o){
+  if (state.style !== "all") return state.style;
+  for (const st of STYLE_ORDER) if (o.s.includes(st)) return st;
+  return o.s[0];
+}
+function cardHTML(o){
+  const st = prefStyle(o), cls = STYLE_PREFIX[st] + " fa-" + o.n;
+  const on = favs.has(o.n);
+  return '<div class="card' + (on ? " faved" : "") + '" data-idx="' + o.i + '" tabindex="0" role="button" title="查看详情">'
+    + '<i class="' + cls + '" aria-hidden="true"></i>'
+    + '<span class="cn">' + esc(o.n) + '</span>'
+    + '<span class="cu">' + esc(o.u) + '</span>'
+    + '<button class="fc" data-fav="' + esc(o.n) + '" title="' + (on ? "移出常用" : "加入常用") + '"><i class="fa-' + (on ? "solid" : "regular") + ' fa-star" aria-hidden="true"></i></button>'
+    + '<button class="qc" data-copy="<i class=&quot;' + cls + '&quot;></i>" title="复制 HTML 代码"><i class="fa-regular fa-copy" aria-hidden="true"></i></button>'
+    + '</div>';
+}
+
+/* ---------- 渲染主区 ---------- */
+function render(){
+  const q = state.q.trim().toLowerCase();
+  const hx = hexFromQuery(q);
+  const styleOK = o => state.style === "all" || o.s.includes(state.style);
+  const grid = $("#grid");
+  let html = "";
+
+  if (q) {
+    const res = ICONS.filter(styleOK)
+      .map(o => [scoreIcon(o, q, hx), o])
+      .filter(x => x[0] > 0);
+    res.sort((a,b) => b[0] - a[0] || a[1].n.localeCompare(b[1].n));
+    $("#count").textContent = "匹配 " + res.length + " 个图标";
+    html = '<h2 class="sec-h">搜索“' + esc(state.q.trim()) + '”<b>' + res.length + '</b></h2>';
+    if (res.length) {
+      html += '<div class="cards">' + res.map(x => cardHTML(x[1])).join("") + "</div>";
+    } else {
+      html += '<div class="empty"><i class="fa-regular fa-face-meh"></i>'
+        + '<p>没有匹配的图标。试试英文名（home）、旧版名（envelope-o）、<br>unicode（f015）或中文分类词（箭头、天气）。</p></div>';
+    }
+  } else if (state.cat === "favs") {
+    html = favsViewHTML(styleOK);
+    $("#count").textContent = "常用 " + favs.size + " 个图标" + (state.style !== "all" ? " · " + STYLE_ZH[state.style] : "");
+  } else {
+    const pool = ICONS.filter(styleOK);
+    const cats = state.cat === "all" ? D.cats : D.cats.filter(c => c.id === state.cat);
+    if (state.cat === "all") html += favWrapHTML(styleOK);
+    const uniq = new Set();
+    for (const c of cats) {
+      const items = pool.filter(o => o.c.includes(c.id));
+      if (!items.length) continue;
+      items.forEach(o => uniq.add(o.n));
+      html += '<h2 class="sec-h">' + esc(c.zh) + '<em>' + esc(c.label) + '</em><b>' + items.length + '</b></h2>'
+            + '<div class="cards">' + items.map(cardHTML).join("") + "</div>";
+    }
+    $("#count").textContent = "共 " + uniq.size + " 个图标"
+      + (state.style !== "all" ? " · " + STYLE_ZH[state.style] : "")
+      + (state.cat !== "all" ? " · " + CATMAP[state.cat].zh : "");
+    if (!uniq.size) html += '<div class="empty"><i class="fa-regular fa-face-meh"></i><p>当前筛选条件下没有图标。</p></div>';
+  }
+  grid.innerHTML = html;
+  $("#q-clear").style.display = state.q ? "flex" : "none";
+}
+
+/* ---------- 常用图标：渲染与操作 ---------- */
+function favsViewHTML(styleOK){
+  const items = [...favs].map(n => BY_NAME[n]).filter(Boolean).filter(styleOK);
+  let h = '<h2 class="sec-h"><i class="fa-solid fa-star" aria-hidden="true"></i>常用图标<em>Favorites</em><b>' + items.length + '</b>'
+    + '<span class="fav-tools"><button data-favexp title="复制常用图标数据，可粘贴到其他浏览器/打开方式的「导入」里迁移">导出</button>'
+    + '<button data-favimp title="粘贴之前导出的数据进行恢复或合并">导入</button></span></h2>';
+  if (!storageOK) h += '<p style="margin:8px 2px 0;font-size:12px;color:#b45309">⚠ 当前打开方式禁止浏览器本地存储，常用图标刷新后会丢失；改用 Live Server（http 方式）打开即可持久保存。</p>';
+  if (!items.length) {
+    h += favs.size
+      ? '<div class="empty"><i class="fa-regular fa-face-meh"></i><p>当前风格筛选下没有常用图标。</p></div>'
+      : '<div class="empty"><i class="fa-regular fa-star"></i><p>还没有常用图标。<br>把鼠标移到任意图标卡片上，点左上角的 ☆ 星标加入；<br>详情弹窗里也有「加入常用」按钮。</p></div>';
+  } else {
+    h += '<div class="cards">' + items.map(cardHTML).join("") + "</div>";
+  }
+  return h;
+}
+function favWrapHTML(styleOK){
+  if (!favs.size) return "";
+  const items = [...favs].map(n => BY_NAME[n]).filter(Boolean).filter(styleOK);
+  if (!items.length) return "";
+  return '<div id="fav-wrap"><h2 class="sec-h"><i class="fa-solid fa-star" aria-hidden="true"></i>常用<em>Favorites</em><b>' + items.length + '</b></h2>'
+    + '<div class="cards">' + items.map(cardHTML).join("") + "</div></div>";
+}
+function toggleFav(name){
+  if (!BY_NAME[name]) return;
+  const on = !favs.has(name);
+  if (on) { favs.add(name); toast("已加入常用：" + name); }
+  else { favs.delete(name); toast("已移出常用：" + name); }
+  saveFavs();
+  document.querySelectorAll('[data-fav="' + name + '"]').forEach(b => {
+    b.innerHTML = '<i class="fa-' + (on ? "solid" : "regular") + ' fa-star" aria-hidden="true"></i>';
+    b.title = on ? "移出常用" : "加入常用";
+    const card = b.closest(".card");
+    if (card) card.classList.toggle("faved", on);
+  });
+  const mb = document.querySelector("[data-favtoggle]");
+  if (mb && mb.getAttribute("data-favtoggle") === name) {
+    mb.classList.toggle("on", on);
+    mb.innerHTML = '<i class="fa-' + (on ? "solid" : "regular") + ' fa-star" aria-hidden="true"></i>' + (on ? "移出常用" : "加入常用");
+  }
+  updateFavUI();
+}
+function updateFavUI(){
+  buildSidebar();
+  const styleNow = o => state.style === "all" || o.s.includes(state.style);
+  const w = document.getElementById("fav-wrap");
+  const nh = (!state.q && state.cat === "all") ? favWrapHTML(styleNow) : "";
+  if (w) { if (nh) w.outerHTML = nh; else w.remove(); }
+  else if (nh) $("#grid").insertAdjacentHTML("afterbegin", nh);
+  if (state.cat === "favs" && !state.q) render();
+}
+function exportFavs(){
+  if (!favs.size) { toast("还没有常用图标可导出"); return; }
+  copyText("FA-FAVS:" + JSON.stringify([...favs]));
+  toast("已复制 " + favs.size + " 个常用图标的数据，到目标浏览器「常用 → 导入」里粘贴即可");
+}
+function importFavs(){
+  const s = prompt("粘贴之前导出的常用图标数据（FA-FAVS:...）：");
+  if (!s) return;
+  let arr;
+  try {
+    const t = s.trim();
+    arr = JSON.parse(t.indexOf("FA-FAVS:") === 0 ? t.slice(8) : t);
+  } catch(e){ toast("数据格式不对，导入失败"); return; }
+  if (!Array.isArray(arr)) { toast("数据格式不对，导入失败"); return; }
+  let add = 0;
+  arr.forEach(n => { if (BY_NAME[n] && !favs.has(n)) { favs.add(n); add++; } });
+  saveFavs();
+  buildSidebar();
+  if (state.cat === "favs" && !state.q) render(); else updateFavUI();
+  toast(add ? "导入完成，新增 " + add + " 个常用图标" : "没有新增（可能都已存在）");
+}
+
+/* ---------- 侧栏 ---------- */
+function buildSidebar(){
+  let html = '<button class="cat' + (state.cat === "favs" ? " on" : "") + '" data-cat="favs"><span><i class="fa-solid fa-star" style="color:#f0a90a;font-size:11px;margin-right:3px" aria-hidden="true"></i>常用图标</span><b>' + favs.size + '</b></button>';
+  html += '<button class="cat' + (state.cat === "all" ? " on" : "") + '" data-cat="all"><span>全部分类<em>All</em></span><b>' + ICONS.length + '</b></button>';
+  html += D.cats.map(c =>
+    '<button class="cat' + (state.cat === c.id ? " on" : "") + '" data-cat="' + c.id + '">'
+    + '<span>' + esc(c.zh) + '<em>' + esc(c.label) + '</em></span><b>' + c.count + '</b></button>').join("");
+  $("#side-cats").innerHTML = html;
+}
+
+/* ---------- 弹窗 ---------- */
+function snippetsOf(o){
+  const rows = [];
+  o.s.forEach(st => {
+    const cls = STYLE_PREFIX[st] + " fa-" + o.n;
+    rows.push({lb:"HTML · " + STYLE_ZH[st], code:'<i class="' + cls + '" aria-hidden="true"></i>', copy:'<i class="' + cls + '"></i>'});
+  });
+  const first = o.s[0];
+  const fam = first === "brands" ? '"Font Awesome 7 Brands"' : '"Font Awesome 7 Free"';
+  const wt  = first === "solid" ? "900" : "400";
+  const css = '.my-icon::before {\n  font-family: ' + fam + ';\n  font-weight: ' + wt + ';\n  content: "\\' + o.u + '";\n}';
+  rows.push({lb:"CSS ::before", code:css, copy:css});
+  rows.push({lb:"HTML 实体", code:"&#x" + o.u + ";", copy:"&#x" + o.u + ";"});
+  if (first !== "brands") {
+    const v = '<i class="fa" style="--fa: \'\\' + o.u + '\'"></i>';
+    rows.push({lb:"FA7 · --fa 变量", code:v, copy:v});
+  }
+  return rows;
+}
+function openModal(idx){
+  const o = ICONS[idx];
+  $("#m-icon").className = "m-icon " + STYLE_PREFIX[prefStyle(o)] + " fa-" + o.n;
+  $("#m-name").textContent = "fa-" + o.n;
+  $("#m-meta").innerHTML = esc(o.l) + " · unicode <b>" + esc(o.u) + "</b> · " + o.s.map(s => STYLE_ZH[s]).join(" / ");
+
+  const favOn = favs.has(o.n);
+  let h = '<div class="m-favrow"><button data-favtoggle="' + esc(o.n) + '"' + (favOn ? ' class="on"' : '') + ' title="常用图标保存在本浏览器 localStorage，纯本地"><i class="fa-' + (favOn ? "solid" : "regular") + ' fa-star" aria-hidden="true"></i>' + (favOn ? "移出常用" : "加入常用") + '</button></div>'
+    + '<div class="m-sec">各风格预览</div><div class="m-styles">'
+    + o.s.map(st => '<div class="pv"><i class="' + STYLE_PREFIX[st] + ' fa-' + o.n + '"></i><code>' + STYLE_PREFIX[st] + ' fa-' + esc(o.n) + '</code></div>').join("")
+    + "</div>";
+
+  const olds = o.v4o.map(v => ({t:"fa fa-" + v, q:v, v4:true}))
+    .concat(o.a.map(a => ({t:"fa-" + a, q:a, v4:false})));
+  if (olds.length) {
+    h += '<div class="m-sec">旧版名称（点击可搜索）</div><div class="chips-mini">'
+      + olds.map(x => '<button data-q="' + esc(x.q) + '" class="' + (x.v4 ? "v4" : "") + '" title="' + (x.v4 ? "Font Awesome 4 旧类名" : "旧版本别名") + '">' + esc(x.t) + (x.v4 ? " ⁴" : "") + '</button>').join("")
+      + "</div>";
+  }
+  if (o.zh.length) {
+    h += '<div class="m-sec">所属分类</div><div class="chips-mini">'
+      + o.c.filter(id => CATMAP[id]).map(id => '<button data-cat="' + id + '">' + esc(CATMAP[id].zh) + " " + esc(CATMAP[id].label) + '</button>').join("")
+      + "</div>";
+  }
+  h += '<div class="m-sec">代码片段（点击右侧复制）</div>'
+    + snippetsOf(o).map(r =>
+      '<div class="snip"><span class="lb">' + esc(r.lb) + '</span><code>' + esc(r.code) + '</code>'
+      + '<button data-copy="' + esc(r.copy) + '">复制</button></div>').join("");
+
+  h += '<div class="m-sec">尺寸效果</div><div class="m-demo">'
+    + o.s.map(st => '<i class="' + STYLE_PREFIX[st] + ' fa-' + o.n + '"></i>').join("")
+    + '<i class="' + STYLE_PREFIX[o.s[0]] + ' fa-' + o.n + ' fa-2x"></i>'
+    + '<i class="' + STYLE_PREFIX[o.s[0]] + ' fa-' + o.n + ' fa-3x"></i></div>';
+
+  $("#m-body").innerHTML = h;
+  $("#overlay").classList.add("on");
+}
+function closeModal(){ $("#overlay").classList.remove("on"); }
+
+/* ---------- v4 对照表 ---------- */
+function buildV4Table(){
+  $("#v4count").textContent = Object.keys(D.v4).length;
+  const rows = Object.keys(D.v4).sort().map(old => {
+    const m = D.v4[old];
+    // shims.json 里的风格是 FA4/5 命名（fas/far/fab 或空），转成 FA7 前缀
+    const st = m.s === "far" ? "regular" : m.s === "fab" ? "brands" : "solid";
+    const newCls = STYLE_PREFIX[st] + " fa-" + m.n;
+    return '<tr data-k="' + esc(old + " " + m.n) + '">'
+      + '<td><code class="old">fa fa-' + esc(old) + '</code></td>'
+      + '<td style="text-align:center"><i class="' + newCls + '" title="' + esc(newCls) + '"></i></td>'
+      + '<td><code class="new">' + esc(newCls) + '</code>' + (m.s === "far" ? ' <span style="color:#9aa5ba">(regular)</span>' : "") + '</td></tr>';
+  }).join("");
+  $("#v4table tbody").innerHTML = rows;
+}
+
+/* ---------- 事件 ---------- */
+function setTab(name){
+  $$(".tabs button").forEach(b => b.classList.toggle("on", b.dataset.tab === name));
+  $("#view-icons").classList.toggle("on", name === "icons");
+  $("#view-docs").classList.toggle("on", name === "docs");
+  try { localStorage.setItem("fa-tab", name); } catch(e){}
+}
+function goSearch(q){
+  setTab("icons");
+  state.q = q; $("#q").value = q;
+  state.cat = "all"; buildSidebar();
+  render();
+  $("#grid").scrollTop = 0;
+}
+function bind(){
+  $$(".tabs button").forEach(b => b.addEventListener("click", () => setTab(b.dataset.tab)));
+
+  let debounce = null;
+  $("#q").addEventListener("input", e => {
+    clearTimeout(debounce);
+    debounce = setTimeout(() => { state.q = e.target.value; render(); }, 120);
+  });
+  $("#q").addEventListener("keydown", e => {
+    if (e.key === "Escape") { e.target.value = ""; state.q = ""; render(); }
+  });
+  $("#q-clear").addEventListener("click", () => { $("#q").value = ""; state.q = ""; render(); $("#q").focus(); });
+
+  $("#style-chips").addEventListener("click", e => {
+    const b = e.target.closest(".chip"); if (!b) return;
+    state.style = b.dataset.style;
+    $$("#style-chips .chip").forEach(c => c.classList.toggle("on", c === b));
+    render();
+  });
+
+  $("#side-cats").addEventListener("click", e => {
+    const b = e.target.closest(".cat"); if (!b) return;
+    state.cat = b.dataset.cat;
+    if (state.q) { state.q = ""; $("#q").value = ""; }
+    buildSidebar(); render();
+    $("#grid").scrollTop = 0;
+  });
+
+  $("#grid").addEventListener("click", e => {
+    const fv = e.target.closest("[data-fav]");
+    if (fv) { e.stopPropagation(); toggleFav(fv.getAttribute("data-fav")); return; }
+    const ex = e.target.closest("[data-favexp]");
+    if (ex) { exportFavs(); return; }
+    const im = e.target.closest("[data-favimp]");
+    if (im) { importFavs(); return; }
+    const cp = e.target.closest("[data-copy]");
+    if (cp) { e.stopPropagation(); copyText(cp.getAttribute("data-copy")); return; }
+    const card = e.target.closest(".card");
+    if (card) openModal(+card.dataset.idx);
+  });
+  $("#grid").addEventListener("keydown", e => {
+    if (e.key === "Enter" && e.target.classList.contains("card")) openModal(+e.target.dataset.idx);
+  });
+
+  $("#overlay").addEventListener("click", e => { if (e.target === e.currentTarget) closeModal(); });
+  $("#m-close").addEventListener("click", closeModal);
+  $("#m-body").addEventListener("click", e => {
+    const ft = e.target.closest("[data-favtoggle]");
+    if (ft) { toggleFav(ft.getAttribute("data-favtoggle")); return; }
+    const cp = e.target.closest("[data-copy]");
+    if (cp) { copyText(cp.getAttribute("data-copy")); return; }
+    const sq = e.target.closest("[data-q]");
+    if (sq) { closeModal(); goSearch(sq.getAttribute("data-q")); return; }
+    const sc = e.target.closest("[data-cat]");
+    if (sc) { closeModal(); state.cat = sc.getAttribute("data-cat"); state.q = ""; $("#q").value = ""; buildSidebar(); render(); }
+  });
+
+  $("#v4filter").addEventListener("input", e => {
+    const k = e.target.value.trim().toLowerCase();
+    $$("#v4table tbody tr").forEach(tr => tr.style.display = !k || tr.getAttribute("data-k").includes(k) ? "" : "none");
+  });
+
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape") closeModal();
+    if (e.key === "/" && !/INPUT|TEXTAREA/.test(document.activeElement.tagName)) { e.preventDefault(); setTab("icons"); $("#q").focus(); }
+  });
+
+  $$(".toc a").forEach(a => a.addEventListener("click", e => {
+    e.preventDefault();
+    const el = $(a.getAttribute("href"));
+    if (el) el.scrollIntoView({behavior:"smooth"});
+  }));
+}
+
+/* ---------- 启动 ---------- */
+$("#ver").textContent = "v" + D.v;
+buildSidebar();
+buildV4Table();
+render();
+bind();
+try { const t = localStorage.getItem("fa-tab"); if (t) setTab(t); } catch(e){}
+})();
+</script>
+</body>
+</html>
